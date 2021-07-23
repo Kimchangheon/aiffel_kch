@@ -1,0 +1,27 @@
+for i in {101..131}
+do 
+
+vm="vm"
+result=".json"
+vmn="$vm$i" 
+vmnresult="$vmn$result"
+
+echo $vmn
+echo $vmnresult
+
+az vm create --resource-group Aiffel_Biz_Data_Engineering --name $vmn --image "/subscriptions/e3ee16c1-755f-49c4-b320-40914cb98a3b/resourceGroups/aiffel_biz/providers/Microsoft.Compute/galleries/aiffel_biz_gallery/images/aiffelbiz_de001" --size Standard_D4ds_v4 --admin-username ubuntu --admin-password moduDE12345!  --public-ip-address-allocation static  --public-ip-sku Standard > $vmnresult
+
+nsg="NSG"
+vmnnsg="$vmn$nsg"
+az network nsg rule delete -g Aiffel_Biz_Data_Engineering --nsg-name $vmnnsg -n default-allow-ssh
+
+
+az network nsg rule create -g Aiffel_Biz_Data_Engineering --nsg-name $vmnnsg -n AllowModulabsOnly --priority 100 --source-address-prefixes 112.216.237.122 112.216.237.123 112.216.237.124 112.216.237.226 112.216.237.227 112.216.237.228 116.38.237.124 14.32.54.14 203.247.149.239 27.122.242.65 1.241.203.244 112.214.95.140 203.247.149.218 27.117.132.51 --destination-port-ranges 22 3306 4040 4041 8080 8088 8888 9880 10020 19888 50070 50075 60070 60075 --direction Inbound --access Allow --description "Allow Modulabs Only"
+
+az network dns record-set a delete --resource-group aiffel_biz --zone-name aiffelbiz.co.kr --name $vmn --yes
+
+ip=$(cat $vmnresult | python3 -c "import sys, json; print(json.load(sys.stdin)['publicIpAddress'])")
+
+az network dns record-set a add-record -g aiffel_biz -z aiffelbiz.co.kr -n $vmn -a $ip
+
+done
