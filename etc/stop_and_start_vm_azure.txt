@@ -1,0 +1,25 @@
+#########################################################################
+# 학생 vm step
+for i in {101..131}
+do 
+ 
+vm="vm"
+result=".json"
+vmn="$vm$i" 
+
+az vm deallocate --resource-group Aiffel_Biz_Data_Engineering --name $vmn
+ 
+done
+#########################################################################
+# 학생 vm start
+for i in {101..131}
+do 
+ 
+vm="vm"
+result=".json"
+vmn="$vm$i" 
+
+az vm start --resource-group Aiffel_Biz_Data_Engineering --name $vmn
+ 
+done
+#########################################################################
